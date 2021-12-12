@@ -1,0 +1,68 @@
+ROM (16-bit address, 24-bit data):
+	|- OPCODE (8-bit) -
+		|- 00 = INTERMEDIATE (When called:
+						- Put the first 8 bits of the address into where the second 8 bits lead to
+					)
+		|- 01 = COPY (When called: 
+						- Copy the data from where the first 8 bits lead to into where the second 8 bits lead to
+					)
+		|- 02 = JUMP (When called:
+						- Push the current counter value into the stack (plus one) if the second 8 bits of the address equal 0x?1 (This is used to do functions)
+						- Set the counter to the value inside where the first 8 bits of the address lead to if the second 8 bits are equal to 0x0?
+						- Set the counter to first 8 bits of the address if the second 8 bits of the address are equal to 0x1?
+						- Pop from the stack and jump to it if the second 8 bits of the address equal 0x2? (This is used to return)
+					)
+		|- 04 = IO (When called:
+						- Pull what's in the input of the IO to where the first 8 bits of the address lead to if the second 8 bits of the address equal 0x?0
+						- Send what's in where the first 8 bits of the address lead to into the output of the IO if the second 8 bits of the address equal 0x?1
+					)
+		|- 06 = GPU RAM SAVE (When called:
+						- Combine the the two values pulled from where the two sets of 8 bits of the address lead to and use that 16-bit value as an address for GPU RAM
+						- Save whatever's in the COLOR REGISTER to GPU RAM at that new address made in the last step
+					)
+		|- 07 = ASCII (When called:
+						- Use the value of where the first 8 bits of the address lead to if the second 8 bits are set to 0x?0
+						- Use the first 8 bits of the address if the second 8 bits are set to 0x?1
+						- Jump to what the ASCII Lookup Table gives (and push counter value to stack like usual)
+					)
+		|- 08 = STACK (When called:
+						- If the second 8 bits of the address are 0x0?, use the value from where the first 8 bits of the address lead
+						- If the second 8 bits of the address are 0x1?, use the first 8 bits of the address as the value
+						- If the second 8 bits of the address are 0x?0, push the value we're using into the STACK
+						- If the second 8 bits of the address are 0x?1, pop from the STACK and save that value to where the first 8 bits of the address lead to
+					)
+		|- 09 = COLOR REGISTER (When called:
+						- Save the value from where the first 8 bits lead to into the COLOR REGISTER
+					)
+		|- 0A = ALU REGISTER (When called:
+						- Pull from the ALU REGISTER and save it into where the first 8 bits of the address lead to
+					)
+		|- 0B = ADD (When called:
+						- Add together the value from where the first 8 bits lead to and the value from where the second 8 bits lead to
+						- Take that added value and save it into the ALU OUT register
+					)
+		|- 0C = EQUALS (When called:
+						- If the value in what the first 8 bits lead to is equal to the value in where the second 8 bits lead to, pop the stack and jump to the value
+					)
+		|- 0D = NOT EQUALS (When called:
+						- If the value in what the first 8 bits lead to is not equal to the value in where the second 8 bits lead to, pop the stack and jump to the value
+					)
+		|- FE = NO OP (When called:
+						- Do nothing and go to the next line
+					)
+		|- FF = STOP (When called:
+						- Stop the clock
+					)
+	|- Address/Addresses (16-bit)
+
+CPU:
+	|- ALU (8-bit address) (WIP)
+	|- RAM (8-bit address, 8-bit data)
+	|- REGISTER FILE (4-bit address, 8-bit data):
+		- A = ALU
+		- C = COLOR
+	|- STACK (16-bit address (only use full 16-bits when used with counter), 8-bit data)
+	
+GPU:
+	|- RAM (16-bit address, 8-bit data)
+	|- VGA (8-bits in for color data)
